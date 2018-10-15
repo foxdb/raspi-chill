@@ -1,5 +1,15 @@
 # raspi-chill
 
+## Usage
+
+- **Continous** - monitor and maintain temperature
+
+`python src/core.py`
+
+- **One shot** - take the environment to a target temperature
+
+`python src/refresh.py`
+
 ## Hardware
 
 ### Misc
