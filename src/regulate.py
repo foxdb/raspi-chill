@@ -1,6 +1,8 @@
 import os
+import logging
 import ConfigParser
 from time import sleep
+from datetime import datetime
 from sensor import read_temperature
 from buzzer import alarm, notify_init
 from cooler import turn_cooling_off, turn_cooling_on
@@ -18,9 +20,14 @@ def main():
     CYCLES_BEFORE_ALARM = config.getint('time', 'cycles_before_alarm')
     SLACK = config.getfloat('temperatures', 'slack')
 
-    alarm_cycles = 0
+    logging.basicConfig(filename='regulate.log', level=logging.DEBUG)
+
+    log('regulation has started with target temperature: ' + str(UPPER_LIMIT))
+    log('current temperature is: ' + str(read_temperature()))
 
     notify_init()
+
+    alarm_cycles = 0
 
     while True:
         current_temp = read_temperature()
@@ -36,11 +43,21 @@ def main():
         if current_temp > ALARM_LIMIT:
             alarm()
             alarm_cycles += 1
+            log('ALARM - ' + str(alarm_cycles) + ' consecutive cycles')
 
         if alarm_cycles % CYCLES_BEFORE_ALARM == 0 and alarm_cycles != 0:
             print "--> sms"
+            log('sent alarm notification')
 
         sleep(SECONDS_INTERVAL)
+
+
+def get_date():
+    return datetime.now().strftime('%Y%m%d_%H-%M-%S')
+
+
+def log(message):
+    logging.info(get_date() + ': ' + message)
 
 
 main()
