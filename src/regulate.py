@@ -2,6 +2,8 @@ import os
 import ConfigParser
 from time import sleep
 from sensor import read_temperature
+from buzzer import alarm, notify_init
+from cooler import turn_cooling_off, turn_cooling_on
 
 config = ConfigParser.ConfigParser()
 config.read(os.path.dirname(os.path.realpath(__file__)) + "/config.ini")
@@ -14,26 +16,24 @@ SLACK = config.getfloat('temperatures', 'slack')
 
 alarm_cycles = 0
 
+notify_init()
+
 while True:
     current_temp = read_temperature()
     print "current temp:", current_temp
 
     if current_temp > UPPER_LIMIT:
-        print "fan on"
+        turn_cooling_on()
 
     if current_temp <= UPPER_LIMIT:
-        print "fan off"
-
+        turn_cooling_off()
         alarm_cycles = 0
 
     if current_temp > ALARM_LIMIT:
+        alarm()
         alarm_cycles += 1
-        # print "THAT'S TOO MUCH BOI, I AM TRIGGERING THE ALARM"
 
-    if alarm_cycles % CYCLES_BEFORE_ALARM == 0:
+    if alarm_cycles % CYCLES_BEFORE_ALARM == 0 and alarm_cycles != 0:
         print "--> sms"
-
-    if alarm_cycles >= CYCLES_BEFORE_ALARM:
-        print "BUZZZZ"
 
     sleep(SECONDS_INTERVAL)
