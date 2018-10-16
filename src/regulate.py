@@ -5,35 +5,40 @@ from sensor import read_temperature
 from buzzer import alarm, notify_init
 from cooler import turn_cooling_off, turn_cooling_on
 
-config = ConfigParser.ConfigParser()
-config.read(os.path.dirname(os.path.realpath(__file__)) + "/config.ini")
 
-SECONDS_INTERVAL = config.getint('time', 'measure_every')
-UPPER_LIMIT = config.getint('temperatures', 'maintain_less_than')
-ALARM_LIMIT = config.getint('temperatures', 'alarm_over')
-CYCLES_BEFORE_ALARM = config.getint('time', 'cycles_before_alarm')
-SLACK = config.getfloat('temperatures', 'slack')
+def main():
+    config = ConfigParser.ConfigParser()
+    config.read(os.path.dirname(os.path.realpath(__file__)) + "/config.ini")
 
-alarm_cycles = 0
+    SECONDS_INTERVAL = config.getint('time', 'measure_every')
+    UPPER_LIMIT = config.getint('temperatures', 'maintain_less_than')
+    ALARM_LIMIT = config.getint('temperatures', 'alarm_over')
+    CYCLES_BEFORE_ALARM = config.getint('time', 'cycles_before_alarm')
+    SLACK = config.getfloat('temperatures', 'slack')
 
-notify_init()
+    alarm_cycles = 0
 
-while True:
-    current_temp = read_temperature()
-    print "current temp:", current_temp
+    notify_init()
 
-    if current_temp > UPPER_LIMIT:
-        turn_cooling_on()
+    while True:
+        current_temp = read_temperature()
+        print "current temp:", current_temp
 
-    if current_temp <= UPPER_LIMIT:
-        turn_cooling_off()
-        alarm_cycles = 0
+        if current_temp > UPPER_LIMIT:
+            turn_cooling_on()
 
-    if current_temp > ALARM_LIMIT:
-        alarm()
-        alarm_cycles += 1
+        if current_temp <= UPPER_LIMIT:
+            turn_cooling_off()
+            alarm_cycles = 0
 
-    if alarm_cycles % CYCLES_BEFORE_ALARM == 0 and alarm_cycles != 0:
-        print "--> sms"
+        if current_temp > ALARM_LIMIT:
+            alarm()
+            alarm_cycles += 1
 
-    sleep(SECONDS_INTERVAL)
+        if alarm_cycles % CYCLES_BEFORE_ALARM == 0 and alarm_cycles != 0:
+            print "--> sms"
+
+        sleep(SECONDS_INTERVAL)
+
+
+main()
