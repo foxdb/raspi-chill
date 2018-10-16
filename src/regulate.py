@@ -5,6 +5,8 @@ from sensor import read_temperature
 from buzzer import alarm, notify_init
 from cooler import turn_cooling_off, turn_cooling_on
 
+# TODO: Logging https://docs.python.org/2/howto/logging.html
+
 
 def main():
     config = ConfigParser.ConfigParser()
