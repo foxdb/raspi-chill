@@ -10,7 +10,11 @@
 
 `python src/refresh.py`
 
-## Hardware
+## Hardware (box)
+
+> FreeCAD design and panels measurements in `cad/iceBox.fcstd`
+
+## Hardware (electronics)
 
 ### Misc
 
