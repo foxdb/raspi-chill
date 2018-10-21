@@ -6,6 +6,7 @@ from datetime import datetime
 from sensor import read_temperature
 from buzzer import alarm, notify_init
 from cooler import turn_cooling_off, turn_cooling_on
+from db import writeToFile
 
 # TODO: Logging https://docs.python.org/2/howto/logging.html
 
@@ -49,6 +50,7 @@ def main():
             print "--> sms"
             log('sent alarm notification')
 
+        writeToFile(get_date(), current_temp)
         sleep(SECONDS_INTERVAL)
 
 
