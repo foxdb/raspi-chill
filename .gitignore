@@ -1,3 +1,5 @@
 send.sh
+getLogs.sh
 config.ini
 .vscode
+*.log
