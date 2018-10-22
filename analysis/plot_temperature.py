@@ -25,12 +25,8 @@ def add_plot(logFile, title):
             x.append(timedelta.total_seconds() / 60 / 60)
             y.append(float(row[1]))
 
-    plt.plot(x, y, label=logFile)
+    plt.plot(x, y, label=title)
     plt.ylim(0, 30)
-
-    # identify min and max with horizontal lines
-    # plt.axhline(y=min(y))
-    # plt.axhline(y=max(y))
 
     ymax = max(y)
     xposmax = y.index(ymax)
@@ -51,8 +47,11 @@ def add_plot(logFile, title):
                  )
 
 
-add_plot('temperature-try1.log', 'try1')
-add_plot('temperature-try2.log', 'try2')
+# one day, one jug, poor insulation
+add_plot('data/temp_1.csv', 'try1')
+
+# glued more things, added duct tape
+add_plot('data/temperature.log', 'try2')
 
 # legends, labels
 plt.xlabel('Time (h)')
