@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import csv
-from datetime import datetime, timestamp
 
 x = []
 y = []
