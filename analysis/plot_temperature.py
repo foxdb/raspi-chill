@@ -2,54 +2,61 @@ import matplotlib.pyplot as plt
 import csv
 from datetime import datetime
 
-x = []
-y = []
 
 DATE_FORMAT = '%Y%m%d_%H-%M-%S'
 
-with open('./temperature.log', 'r') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
 
-    initial_date = datetime.strptime(next(reader)[0], DATE_FORMAT)
-    initial_temp = float(next(reader)[1])
+def add_plot(logFile, title):
+    x = []
+    y = []
 
-    x.append(0)
-    y.append(initial_temp)
+    with open(logFile, 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
 
-    for row in reader:
-        timedelta = datetime.strptime(row[0], '%Y%m%d_%H-%M-%S') - initial_date
-        x.append(timedelta.total_seconds() / 60 / 60)
-        y.append(float(row[1]))
+        initial_date = datetime.strptime(next(reader)[0], DATE_FORMAT)
+        initial_temp = float(next(reader)[1])
 
-plt.plot(x, y, label='try 1 - 90 seconds cycles, 1 jug')
-plt.ylim(0, 30)
+        x.append(0)
+        y.append(initial_temp)
 
-# identify min and max with horizontal lines
-# plt.axhline(y=min(y))
-# plt.axhline(y=max(y))
+        for row in reader:
+            timedelta = datetime.strptime(
+                row[0], '%Y%m%d_%H-%M-%S') - initial_date
+            x.append(timedelta.total_seconds() / 60 / 60)
+            y.append(float(row[1]))
 
-ymax = max(y)
-xposmax = y.index(ymax)
-xmax = x[xposmax]
+    plt.plot(x, y, label=logFile)
+    plt.ylim(0, 30)
 
-ymin = min(y)
-xposmin = y.index(ymin)
-xmin = x[xposmin]
+    # identify min and max with horizontal lines
+    # plt.axhline(y=min(y))
+    # plt.axhline(y=max(y))
 
-plt.annotate('max ' + str(ymax), xy=(xmax, ymax), xytext=(xmax, ymax+2),
-             arrowprops=dict(arrowstyle="->",
-                             connectionstyle="arc3"),
-             )
+    ymax = max(y)
+    xposmax = y.index(ymax)
+    xmax = x[xposmax]
 
-plt.annotate('min ' + str(ymin), xy=(xmin, ymin), xytext=(xmin, ymin-2),
-             arrowprops=dict(arrowstyle="->",
-                             connectionstyle="arc3"),
-             )
+    ymin = min(y)
+    xposmin = y.index(ymin)
+    xmin = x[xposmin]
+
+    plt.annotate('max ' + title + ' ' + str(ymax), xy=(xmax, ymax), xytext=(xmax, ymax+2),
+                 arrowprops=dict(arrowstyle="->",
+                                 connectionstyle="arc3"),
+                 )
+
+    plt.annotate('min ' + title + ' ' + str(ymin), xy=(xmin, ymin), xytext=(xmin, ymin-2),
+                 arrowprops=dict(arrowstyle="->",
+                                 connectionstyle="arc3"),
+                 )
+
+
+add_plot('temperature-try1.log', 'try1')
+add_plot('temperature-try2.log', 'try2')
 
 # legends, labels
 plt.xlabel('Time (h)')
 plt.ylabel('Temperature (C)')
-plt.title(
-    'Fermenting chamber temperature\nStart date: ' + str(initial_date))
+plt.title('Fermenting chamber temperature')
 plt.legend()
 plt.show()
