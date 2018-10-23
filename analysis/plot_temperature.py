@@ -47,17 +47,22 @@ def add_plot(logFile, title):
                  )
 
 
+# plt.subplot(211)
+
 # - poor insulation (main compartiment, top)
 # - one frozen jug
 add_plot('data/temp_1.csv', 'try1')
 
 # - glued more things, added duct tape
 # - one not completely frozen jug
-add_plot('data/temperature.log', 'try2')
-
+add_plot('data/temp_2.csv', 'try2')
 # legends, labels
 plt.xlabel('Time (h)')
 plt.ylabel('Temperature (C)')
 plt.title('Fermenting chamber temperature')
+
+# plt.subplot(212)
+# add_plot('data/temperature.log', 'try2')
+
 plt.legend()
 plt.show()
