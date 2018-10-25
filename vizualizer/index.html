@@ -5,10 +5,12 @@
   <title>Raspi Chill Temperature</title>
 </head>
 
-<body>
+<body style="background-color: #EEEEEE">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
-  <div style="margin: 40">
-    <canvas id="myChart" width="400" height="200"></canvas>
+  <div>
+    <div style="margin: 20 80; padding: 20 80">
+      <canvas id="myChart" width="400" height="200"></canvas>
+    </div>
   </div>
   <script>
     fetch('https://8lcv9lzvgk.execute-api.ap-southeast-2.amazonaws.com/default/getTemperature-js', {
@@ -17,14 +19,13 @@
       return res.json()
     }).then(data => {
       console.log(data.points.length + ' points')
-      const lastReadDate = data.lastReadDate
       const points = data.points.filter(point => point.x !== null).map(point => ({
         ...point,
         x: parseFloat(Math.round(point.x * 1000) / 1000),
         y: parseFloat(Math.round(point.y * 1000) / 1000),
       }))
-      var ctx = document.getElementById("myChart").getContext('2d');
-      var myChart = new Chart(ctx, {
+      const ctx = document.getElementById("myChart").getContext('2d');
+      const myChart = new Chart(ctx, {
         type: 'line',
         data: {
           labels: points.map(point => point.x),
@@ -33,14 +34,22 @@
             data: points,
             borderWidth: 1,
             fill: false,
-            pointRadius: 5,
+            borderColor: '#FF7E9D',
+            backgroundColor: '#FFABBF'
           }]
         },
         options: {
+          animation: {
+            duration: 0, // general animation time
+          },
+          hover: {
+            animationDuration: 0, // duration of animations when hovering an item
+          },
+          responsiveAnimationDuration: 0, // animation duration after a resize
           responsive: true,
           title: {
             display: true,
-            text: 'Last read: ' + points.slice(-1)[0].date + ' - temp: ' + points.slice(-1)[0].y
+            text: 'last point: ' + points.slice(-1)[0].date + ' - temp: ' + points.slice(-1)[0].y + ' - max: ' + data.maxTemp + ' - min: ' + data.minTemp
           },
           tooltips: {
             mode: 'index',
@@ -55,11 +64,17 @@
               ticks: {
                 suggestedMin: 0,
                 // suggestedMax: 100
+              },
+              scaleLabel: {
+                display: true,
+                labelString: 'Hours'
               }
             }],
             yAxes: [{
-              min: 0,
-              max: 30,
+              ticks: {
+                suggestedMin: 0,
+                suggestedMax: 30,
+              },
               display: true,
               scaleLabel: {
                 display: true,
