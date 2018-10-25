@@ -1,0 +1,77 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Raspi Chill Temperature</title>
+</head>
+
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
+  <div style="margin: 40">
+    <canvas id="myChart" width="400" height="200"></canvas>
+  </div>
+  <script>
+    fetch('https://8lcv9lzvgk.execute-api.ap-southeast-2.amazonaws.com/default/getTemperature-js', {
+      // headers: { 'Content-Type': 'application/json' }
+    }).then(res => {
+      return res.json()
+    }).then(data => {
+      console.log(data.points.length + ' points')
+      const lastReadDate = data.lastReadDate
+      const points = data.points.filter(point => point.x !== null).map(point => ({
+        ...point,
+        x: parseFloat(Math.round(point.x * 1000) / 1000),
+        y: parseFloat(Math.round(point.y * 1000) / 1000),
+      }))
+      var ctx = document.getElementById("myChart").getContext('2d');
+      var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: points.map(point => point.x),
+          datasets: [{
+            label: 'Air temperature',
+            data: points,
+            borderWidth: 1,
+            fill: false,
+            pointRadius: 5,
+          }]
+        },
+        options: {
+          responsive: true,
+          title: {
+            display: true,
+            text: 'Last read: ' + points.slice(-1)[0].date + ' - temp: ' + points.slice(-1)[0].y
+          },
+          tooltips: {
+            mode: 'index',
+            intersect: false,
+          },
+          hover: {
+            mode: 'nearest',
+            intersect: true
+          },
+          scales: {
+            xAxes: [{
+              ticks: {
+                suggestedMin: 0,
+                // suggestedMax: 100
+              }
+            }],
+            yAxes: [{
+              min: 0,
+              max: 30,
+              display: true,
+              scaleLabel: {
+                display: true,
+                labelString: 'Temperature'
+              }
+            }]
+
+          }
+        }
+      });
+    }).catch(err => console.error(err))
+  </script>
+</body>
+
+</html>
