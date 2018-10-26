@@ -51,11 +51,14 @@ def add_plot(logFile, title):
 
 # - poor insulation (main compartiment, top)
 # - one frozen jug
-add_plot('data/temp_1.csv', 'try1')
+# add_plot('data/temp_1.csv', 'try1')
 
 # - glued more things, added duct tape
 # - one not completely frozen jug
-add_plot('data/temp_2.csv', 'try2')
+# add_plot('data/temperature.log', 'try2')
+
+add_plot('data/temp_3.csv', 'try3')
+add_plot('data/temperature.log', 'try4')
 # legends, labels
 plt.xlabel('Time (h)')
 plt.ylabel('Temperature (C)')

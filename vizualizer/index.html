@@ -7,31 +7,153 @@
 
 <body style="background-color: #EEEEEE">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
+  <script src="https://momentjs.com/downloads/moment.min.js"></script>
   <div>
     <div style="margin: 20 80; padding: 20 80">
+      <canvas id="lastHoursChart" width="400" height="200"></canvas>
+      <br />
+      <br />
       <canvas id="myChart" width="400" height="200"></canvas>
     </div>
   </div>
   <script>
+    const DATE_FORMAT = 'YYYYMMDD_HH-mm-ss'
     fetch('https://8lcv9lzvgk.execute-api.ap-southeast-2.amazonaws.com/default/getTemperature-js', {
       // headers: { 'Content-Type': 'application/json' }
     }).then(res => {
       return res.json()
     }).then(data => {
-      console.log(data.points.length + ' points')
-      const points = data.points.filter(point => point.x !== null).map(point => ({
-        ...point,
-        x: parseFloat(Math.round(point.x * 1000) / 1000),
-        y: parseFloat(Math.round(point.y * 1000) / 1000),
-      }))
+
+      const findMinMax = (entries) => {
+        let min = 100
+        let max = 0
+        entries.map(entry => {
+          max = entry.temperature > max ? entry.temperature : max
+          min = entry.temperature < min ? entry.temperature : min
+        })
+        return {
+          min,
+          max
+        }
+      }
+
+      const lastHoursPoints = data.lastHours.map(entry => {
+        return {
+          x: moment(entry.date, DATE_FORMAT).format('HH:mm:ss'),
+          y: entry.temperature
+        }
+      })
+
+      const lastHoursMinMax = findMinMax(data.lastHours)
+
+      const ctx2 = document.getElementById("lastHoursChart").getContext('2d');
+      const lastHoursChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: lastHoursPoints.map(point => point.x),
+          datasets: [{
+            label: 'Air temperature',
+            data: lastHoursPoints,
+            borderWidth: 1,
+            fill: false,
+            borderColor: '#FF7E9D',
+            backgroundColor: '#FFABBF'
+          }]
+        },
+        options: {
+          bezierCurve: false,
+          animation: {
+            duration: 0, // general animation time
+          },
+          hover: {
+            animationDuration: 0, // duration of animations when hovering an item
+          },
+          responsiveAnimationDuration: 0, // animation duration after a resize
+          responsive: true,
+          title: {
+            display: true,
+            text: 'Latest 300 points ' + lastHoursPoints[0].x + ' - ' + lastHoursPoints.slice(-1)[0].x + ' - current temp: ' + lastHoursPoints.slice(-1)[0].y
+          },
+          tooltips: {
+            mode: 'index',
+            intersect: false,
+          },
+          hover: {
+            mode: 'nearest',
+            intersect: true
+          },
+          scales: {
+            yAxes: [{
+              display: true,
+              scaleLabel: {
+                display: true,
+                labelString: 'Temperature'
+              },
+              ticks: {
+                suggestedMin: lastHoursMinMax.min - 3,
+                suggestedMax: lastHoursMinMax.max + 3,
+              },
+            }]
+
+
+          }
+        }
+      });
+
+      // all points, chunks of 100. find min, find max, add entry
+      let minPoints = []
+      let maxPoints = []
+      let absoluteMin = 100
+      let absoluteMax = 0
+      let labels = []
+
+      for (let i = 0; i < data.points.length; i = i + 100) {
+        const subArray = data.points.slice(i, i + 100)
+
+        let min = {
+          y: 100
+        }
+        let max = {
+          y: 0
+        }
+
+        subArray.map(entry => {
+          if (entry.temperature > max.y) {
+            max = { x: entry.date, y: entry.temperature }
+            if (entry.temperature > absoluteMax) {
+              absoluteMax = entry.temperature
+            }
+          }
+
+          if (entry.temperature < min.y) {
+            min = { x: entry.date, y: entry.temperature }
+            if (entry.temperature < absoluteMin) {
+              absoluteMin = entry.temperature
+            }
+          }
+        })
+
+        minPoints.push(min)
+        maxPoints.push(max)
+        labels.push(moment(subArray[0].date, DATE_FORMAT).format('MM-DD HH:mm'))
+      }
+
+
       const ctx = document.getElementById("myChart").getContext('2d');
       const myChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: points.map(point => point.x),
+          labels: labels,
           datasets: [{
-            label: 'Air temperature',
-            data: points,
+            label: 'Minimum',
+            data: minPoints,
+            borderWidth: 1,
+            fill: false,
+            borderColor: '#4070FF',
+            backgroundColor: '#3D8CFF'
+          }, {
+            label: 'Maximum',
+            data: maxPoints,
             borderWidth: 1,
             fill: false,
             borderColor: '#FF7E9D',
@@ -49,7 +171,9 @@
           responsive: true,
           title: {
             display: true,
-            text: 'last point: ' + points.slice(-1)[0].date + ' - temp: ' + points.slice(-1)[0].y + ' - max: ' + data.maxTemp + ' - min: ' + data.minTemp
+            text: moment(data.points[0].date, DATE_FORMAT).format('D MMMM HH:mm')
+              + ' - ' + moment(data.points.slice(-1)[0].date, DATE_FORMAT).format('D MMMM HH:mm')
+              + ' - max: ' + data.maxTemp + ' - min: ' + data.minTemp
           },
           tooltips: {
             mode: 'index',
@@ -67,13 +191,13 @@
               },
               scaleLabel: {
                 display: true,
-                labelString: 'Hours'
+                labelString: 'Time'
               }
             }],
             yAxes: [{
               ticks: {
-                suggestedMin: 0,
-                suggestedMax: 30,
+                suggestedMin: absoluteMin - 5,
+                suggestedMax: absoluteMax + 5,
               },
               display: true,
               scaleLabel: {
@@ -81,7 +205,6 @@
                 labelString: 'Temperature'
               }
             }]
-
           }
         }
       });
