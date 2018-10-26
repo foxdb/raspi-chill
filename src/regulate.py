@@ -6,9 +6,7 @@ from datetime import datetime
 from sensor import read_temperature
 from buzzer import alarm, notify_init
 from cooler import turn_cooling_off, turn_cooling_on
-from db import writeToFile
-
-# TODO: Logging https://docs.python.org/2/howto/logging.html
+from db import writeToFile, init_log_file
 
 
 def main():
@@ -16,12 +14,18 @@ def main():
     config.read(os.path.dirname(os.path.realpath(__file__)) + "/config.ini")
 
     SECONDS_INTERVAL = config.getint('time', 'measure_every')
+    LOGS_DIRECTORY = config.get('data', 'logs_directory')
     UPPER_LIMIT = config.getint('temperatures', 'maintain_less_than')
     ALARM_LIMIT = config.getint('temperatures', 'alarm_over')
     CYCLES_BEFORE_ALARM = config.getint('time', 'cycles_before_alarm')
-    SLACK = config.getfloat('temperatures', 'slack')
 
-    logging.basicConfig(filename='regulate.log', level=logging.DEBUG)
+    START_DATE = get_date()
+
+    TEMPERATURE_LOG_FILE = LOGS_DIRECTORY + '/' + START_DATE + '-temperature.log'
+    REGULATE_LOG_FILE = LOGS_DIRECTORY + '/' + START_DATE + '-regulate.log'
+
+    init_log_file(TEMPERATURE_LOG_FILE)
+    logging.basicConfig(filename=REGULATE_LOG_FILE, level=logging.DEBUG)
 
     log('regulation has started with target temperature: ' + str(UPPER_LIMIT))
     log('current temperature is: ' + str(read_temperature()))
@@ -32,7 +36,6 @@ def main():
 
     while True:
         current_temp = read_temperature()
-        print "current temp:", current_temp
 
         if current_temp > UPPER_LIMIT:
             turn_cooling_on()
@@ -50,7 +53,7 @@ def main():
             print "--> sms"
             log('sent alarm notification')
 
-        writeToFile(get_date(), current_temp)
+        writeToFile(TEMPERATURE_LOG_FILE, get_date(), current_temp)
         sleep(SECONDS_INTERVAL)
 
 
@@ -59,6 +62,7 @@ def get_date():
 
 
 def log(message):
+    print get_date() + ': ' + message
     logging.info(get_date() + ': ' + message)
 
 
