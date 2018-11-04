@@ -13,11 +13,11 @@ def main():
     config = ConfigParser.ConfigParser()
     config.read(os.path.dirname(os.path.realpath(__file__)) + "/config.ini")
 
-    SECONDS_INTERVAL = config.getint('time', 'measure_every')
+    PASSIVE_SECONDS_INTERVAL = config.getint('time', 'passive_cycle_time')
+    COOLING_SECONDS_INTERVAL = config.getint('time', 'cooling_cycle_time')
     LOGS_DIRECTORY = config.get('data', 'logs_directory')
     UPPER_LIMIT = config.getint('temperatures', 'maintain_less_than')
     ALARM_LIMIT = config.getint('temperatures', 'alarm_over')
-    CYCLES_BEFORE_ALARM = config.getint('time', 'cycles_before_alarm')
 
     START_DATE = get_date()
 
@@ -49,25 +49,21 @@ def main():
 
     while True:
         current_temp = read_temperature()
-
-        if current_temp > UPPER_LIMIT:
-            turn_cooling_on()
-
-        if current_temp <= UPPER_LIMIT:
-            turn_cooling_off()
-            alarm_cycles = 0
+        writeToFile(TEMPERATURE_LOG_FILE, get_date(), current_temp)
 
         if current_temp > ALARM_LIMIT:
             alarm()
             alarm_cycles += 1
             log('ALARM - ' + str(alarm_cycles) + ' consecutive cycles')
 
-        if alarm_cycles % CYCLES_BEFORE_ALARM == 0 and alarm_cycles != 0:
-            print "--> sms"
-            log('sent alarm notification')
+        if current_temp > UPPER_LIMIT:
+            turn_cooling_on()
+            sleep(COOLING_SECONDS_INTERVAL)
 
-        writeToFile(TEMPERATURE_LOG_FILE, get_date(), current_temp)
-        sleep(SECONDS_INTERVAL)
+        if current_temp <= UPPER_LIMIT:
+            turn_cooling_off()
+            alarm_cycles = 0
+            sleep(PASSIVE_SECONDS_INTERVAL)
 
 
 def get_date():
