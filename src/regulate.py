@@ -8,6 +8,8 @@ from buzzer import alarm, notify_init
 from cooler import turn_cooling_off, turn_cooling_on
 from db import writeToFile, init_log_file
 
+import sys
+
 
 def main():
     config = ConfigParser.ConfigParser()
@@ -21,13 +23,10 @@ def main():
 
     START_DATE = get_date()
 
-    log_file = raw_input(
-        "temperature log file? (Enter generates a new one): ")
-
-    if (log_file):
-        TEMPERATURE_LOG_FILE = LOGS_DIRECTORY + '/' + log_file
+    if (sys.argv[1]):
+        TEMPERATURE_LOG_FILE = LOGS_DIRECTORY + '/' + sys.argv[1]
         REGULATE_LOG_FILE = LOGS_DIRECTORY + '/' + \
-            log_file.replace('-temperature.log', '-regulate.log')
+            sys.argv[1].replace('-temperature.log', '-regulate.log')
         print '- logging temperature to ' + TEMPERATURE_LOG_FILE
         print '- logging events to ' + REGULATE_LOG_FILE
         init_log_file(TEMPERATURE_LOG_FILE)
