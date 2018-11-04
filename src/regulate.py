@@ -21,14 +21,27 @@ def main():
 
     START_DATE = get_date()
 
-    TEMPERATURE_LOG_FILE = LOGS_DIRECTORY + '/' + START_DATE + '-temperature.log'
-    REGULATE_LOG_FILE = LOGS_DIRECTORY + '/' + START_DATE + '-regulate.log'
+    log_file = raw_input(
+        "temperature log file? (Enter generates a new one): ")
 
-    init_log_file(TEMPERATURE_LOG_FILE)
-    logging.basicConfig(filename=REGULATE_LOG_FILE, level=logging.DEBUG)
+    if (log_file):
+        TEMPERATURE_LOG_FILE = LOGS_DIRECTORY + '/' + log_file
+        REGULATE_LOG_FILE = LOGS_DIRECTORY + '/' + \
+            log_file.replace('-temperature.log', '-regulate.log')
+        print '- logging temperature to ' + TEMPERATURE_LOG_FILE
+        print '- logging events to ' + REGULATE_LOG_FILE
+        init_log_file(TEMPERATURE_LOG_FILE)
+        logging.basicConfig(filename=REGULATE_LOG_FILE, level=logging.DEBUG)
+    else:
+        TEMPERATURE_LOG_FILE = LOGS_DIRECTORY + '/' + START_DATE + '-temperature.log'
+        REGULATE_LOG_FILE = LOGS_DIRECTORY + '/' + START_DATE + '-regulate.log'
+        print '- logging temperature to ' + TEMPERATURE_LOG_FILE
+        print '- logging events to ' + REGULATE_LOG_FILE
+        init_log_file(TEMPERATURE_LOG_FILE)
+        logging.basicConfig(filename=REGULATE_LOG_FILE, level=logging.DEBUG)
 
-    log('regulation has started with target temperature: ' + str(UPPER_LIMIT))
-    log('current temperature is: ' + str(read_temperature()))
+    log('- regulation has started with target temperature: ' + str(UPPER_LIMIT))
+    log('- current temperature is: ' + str(read_temperature()))
 
     notify_init()
 

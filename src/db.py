@@ -4,7 +4,7 @@ import os
 
 
 def init_log_file(file):
-    f = open(file, 'w')
+    f = open(file, 'a')
     f.close()
 
 
