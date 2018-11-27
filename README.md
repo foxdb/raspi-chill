@@ -1,14 +1,14 @@
 # raspi-chill
 
+## Setup
+
+- `./install.sh`
+
 ## Usage
 
 - **Continous** - monitor and maintain temperature
 
-`python src/core.py`
-
-- **One shot** - take the environment to a target temperature
-
-`python src/refresh.py`
+`python src/regulate.py`
 
 ## Hardware (box)
 
@@ -27,8 +27,6 @@
 
 - 12 V at 400 mA power supply
 - 5 V at 1A power supply
-
-> Even better: work with one 12 VDC only (1-2A) and a regulator for the Raspberry.
 
 ### Sensor
 
