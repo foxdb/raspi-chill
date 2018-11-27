@@ -3,3 +3,5 @@ getLogs.sh
 config.ini
 .vscode
 *.log
+notes
+*.pyc

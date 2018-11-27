@@ -1,4 +1,3 @@
-# import MySQLdb
 import ConfigParser
 import os
 
