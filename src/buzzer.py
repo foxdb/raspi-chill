@@ -1,6 +1,3 @@
-#  buzz on start
-#  buzz on alarm
-
 from gpiozero import Buzzer
 from time import sleep
 import ConfigParser
@@ -36,4 +33,8 @@ def notify_init():
 def alarm():
     buzzer.on()
     sleep(0.5)
+    buzzer.off()
+
+
+def turn_buzzer_off():
     buzzer.off()
