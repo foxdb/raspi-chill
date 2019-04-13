@@ -10,6 +10,8 @@
 
 `nohup sudo ./src/regulate.py --name NAME &`
 
+Hot updates of `config.ini` are supported. Example usecase: change the regulation temperature, cycle time, ...
+
 ## Hardware (box)
 
 > FreeCAD design and panels measurements in `cad/iceBox.fcstd`
