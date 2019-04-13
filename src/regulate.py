@@ -1,66 +1,53 @@
+#!/usr/bin/env python3
+
 import os
-import logging
-import ConfigParser
+import configparser
+import threading
 from time import sleep
-from datetime import datetime
 from sensor import read_temperature
 from buzzer import alarm, notify_init, is_buzzer_on, turn_buzzer_off
 from cooler import turn_cooling_off, turn_cooling_on, is_cooling_on
-from db import writeToFile, init_log_file
+from db import Logger, get_date
+from spindel_server import spindel_server
 
-import sys
 
-
-def main():
-    config = get_config()
-    START_DATE = get_date()
+def main(logger, config_file):
+    config = get_config(config_file)
     init_temp = read_temperature()
-
-    # allow user to give temperature log file through cmd args
-    if (sys.argv[1]):
-        TEMPERATURE_LOG_FILE = config.get('LOGS_DIRECTORY') + '/' + sys.argv[1]
-        EVENTS_LOG_FILE = config.get('LOGS_DIRECTORY') + '/' + \
-            sys.argv[1].replace('-temperature.log', '-regulate.log')
-
-        init_log_file(TEMPERATURE_LOG_FILE)
-        logging.basicConfig(filename=EVENTS_LOG_FILE, level=logging.DEBUG)
-
-    else:
-        TEMPERATURE_LOG_FILE = config.get(
-            'LOGS_DIRECTORY') + '/' + START_DATE + '-temperature.log'
-        EVENTS_LOG_FILE = config.get(
-            'LOGS_DIRECTORY') + '/' + START_DATE + '-regulate.log'
-
-        init_log_file(TEMPERATURE_LOG_FILE)
-        logging.basicConfig(filename=EVENTS_LOG_FILE, level=logging.DEBUG)
 
     notify_init()
 
-    log('raspi-chill has started!')
-    log('[ REGULATION ]')
-    log('- current temperature: ' + str(init_temp))
-    log('- target temperature: ' + str(config.get('UPPER_LIMIT')))
-    log('- regulation enabled: ' + str(config.get('REGULATION_ENABLED')))
-    log('- cooling cycle time: ' + str(config.get('COOLING_SECONDS_INTERVAL')))
-    log('- passive cycle time: ' + str(config.get('PASSIVE_SECONDS_INTERVAL')))
-    log('[ LOGS ]')
-    log('- temperature log file: ' + str(TEMPERATURE_LOG_FILE))
-    log('- events log file: ' + str(EVENTS_LOG_FILE))
+    logger.info('raspi-chill has started!')
+    logger.info('[ REGULATION ]')
+    logger.info('- initial ext temperature: %s' % init_temp)
+    logger.info('- target ext temperature:  %s' % config.get('UPPER_LIMIT'))
+    logger.info('- regulation enabled: %s' % config.get('REGULATION_ENABLED'))
+    logger.info('- cooling cycle time: %s' %
+                config.get('COOLING_SECONDS_INTERVAL'))
+    logger.info('- passive cycle time: %s' %
+                config.get('PASSIVE_SECONDS_INTERVAL'))
+    logger.info('[ LOGS ]')
+    logger.info('- int temperature log: %s' %
+                (logger.INTERNAL_TEMPERATURE_LOG_FILE))
+    logger.info('- ext temperature log: %s' %
+                (logger.EXTERNAL_TEMPERATURE_LOG_FILE))
+    logger.info('- gravity log: %s' % (logger.GRAVITY_LOG_FILE))
+    logger.info('- events log: %s' % (logger.EVENTS_LOG_FILE))
 
     alarm_cycles = 0
 
     while True:
         # refresh config
-        config = get_config()
+        config = get_config(config_file)
 
         current_temp = read_temperature()
-        writeToFile(TEMPERATURE_LOG_FILE, get_date(), current_temp)
+        logger.writeExternalTemperature(current_temp)
 
         if config.get('REGULATION_ENABLED'):
             if current_temp > config.get('ALARM_LIMIT'):
                 alarm()
                 alarm_cycles += 1
-                log('ALARM - ' + str(alarm_cycles) + ' consecutive cycles')
+                logger.info('ALARM - %s consecutive cycles' % alarm_cycles)
 
             if current_temp > config.get('UPPER_LIMIT'):
                 turn_cooling_on()
@@ -77,19 +64,9 @@ def main():
             sleep(config.get('PASSIVE_SECONDS_INTERVAL'))
 
 
-def get_date():
-    return datetime.now().strftime('%Y%m%d_%H-%M-%S')
-
-
-def log(message):
-    print get_date() + ': ' + message
-    logging.info(get_date() + ': ' + message)
-
-
-def get_config():
-    config_input = ConfigParser.ConfigParser()
-    config_input.read(os.path.dirname(
-        os.path.realpath(__file__)) + "/config.ini")
+def get_config(config_file):
+    config_input = configparser.ConfigParser()
+    config_input.read(config_file)
 
     config = dict()
 
@@ -107,4 +84,26 @@ def get_config():
     return config
 
 
-main()
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--name', help='project name, included in log files')
+    args = parser.parse_args()
+
+    if args.name == None:
+        logger = Logger(get_date())
+    else:
+        logger = Logger(args.name)
+
+    config_file = os.path.dirname(
+        os.path.realpath(__file__)) + "/config.ini"
+
+    # need threads here
+    regulation_thread = threading.Thread(
+        target=main, args=(logger, config_file,))
+    http_thread = threading.Thread(target=spindel_server, args=(logger, 85,))
+
+    regulation_thread.start()
+    http_thread.start()
+
+    #  TODO handle KeyboardInterrupt, handle process kill

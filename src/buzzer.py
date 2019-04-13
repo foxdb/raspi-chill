@@ -1,9 +1,9 @@
 from gpiozero import Buzzer
 from time import sleep
-import ConfigParser
+import configparser
 import os
 
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 config.read(os.path.dirname(os.path.realpath(__file__)) + "/config.ini")
 
 BUZZER_GPIO = config.getint('actuators', 'buzzer_gpio')

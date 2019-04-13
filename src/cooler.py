@@ -1,9 +1,9 @@
 from gpiozero import DigitalOutputDevice
 from time import sleep
-import ConfigParser
+import configparser
 import os
 
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 config.read(os.path.dirname(os.path.realpath(__file__)) + "/config.ini")
 
 COOLING_GPIO = config.getint('actuators', 'cooling_gpio')

@@ -8,7 +8,7 @@
 
 - **Continous** - monitor and maintain temperature
 
-`python src/regulate.py`
+`nohup sudo ./src/regulate.py --name NAME &`
 
 ## Hardware (box)
 

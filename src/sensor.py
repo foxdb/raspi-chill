@@ -1,12 +1,12 @@
 import os
 import glob
 import time
-import ConfigParser
+import configparser
 
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 config.read(os.path.dirname(os.path.realpath(__file__)) + "/config.ini")
 
 device_directory = config.get('sensors', 'temp_device_folder')
