@@ -32,7 +32,9 @@ Hot updates of `config.ini` are supported. Example usecase: change the regulatio
 
 ### Sensor
 
-- Digital temperature sensor: DS18B20
+- Digital temperature sensor: DS18B20 (or XC3700 mounted on a board)
+  - Reference: https://www.jaycar.com.au/digital-temperature-sensor-module/p/XC3700
+  - Pinout: see ./docs for wiring
 
 ### During prototyping
 
