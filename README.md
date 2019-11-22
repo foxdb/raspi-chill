@@ -93,6 +93,23 @@ Implementation:
 
 #### cooling system
 
+Peltier or compressor refrigeration?
+
+A DIY Peltier-based solution sounds a bit dangerous? And maybe not efficient enough.
+
+Why not reusing the system out of a refrigerated esky
+
+https://en.wikipedia.org/wiki/Thermoelectric_cooling
+
 Implementations:
+Compressor:
 - strip existing cooling parts from an old fridge?
 - boat-like or truck-like compressor-cooling kit?
+
+Peltier:
+- https://www.aliexpress.com/item/32971811480.html
+- https://www.aliexpress.com/item/32946954579.html
+- https://www.seafrost.com/BD.html
+
+Esky-style:
+- https://www.aliexpress.com/item/33040098056.html
