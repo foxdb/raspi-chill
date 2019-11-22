@@ -2,7 +2,7 @@
 
 ## setup
 
-- `./install.sh`
+`./install.sh`
 
 ## usage
 
