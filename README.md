@@ -6,43 +6,28 @@
 
 ## Usage
 
-- **Continous** - monitor and maintain temperature
+**Continous mode:** monitors and maintain temperature
 
 `nohup sudo ./src/regulate.py --name NAME &`
 
-Hot updates of `config.ini` are supported. Example usecase: change the regulation temperature, cycle time, ...
+Real-time updates of `config.ini` are supported. Example usecase: change the regulation temperature, cycle time, ...
 
-## Hardware (box)
+## Hardware
 
-> FreeCAD design and panels measurements in `cad/iceBox.fcstd`
-
-## Hardware (electronics)
-
-### Misc
-
+- icebox v1: FreeCAD design and panels measurements in `cad/iceBox.fcstd`
 - 12 VDC 80 mm fan
 - 12 VDC relay
 - Raspberry Pi 3
 - Relay module
-
-### Power supplies
-
 - 12 V at 400 mA power supply
 - 5 V at 1A power supply
-
-### Sensor
-
 - Digital temperature sensor: DS18B20 (or XC3700 mounted on a board)
   - Reference: https://www.jaycar.com.au/digital-temperature-sensor-module/p/XC3700
   - Pinout: see ./docs for wiring
+- (prototyping/debug only) Breadboard
+- (prototyping/debug only) Jumper cables
 
-### During prototyping
-
-- Breadboard
-- Jumper cables
-- Another thermometer for calibration
-
-## v2 (under development)
+## v2 hardware (under development)
 
 Goals:
 
