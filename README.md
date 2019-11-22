@@ -91,6 +91,11 @@ Implementation:
 
 #### power supply
 
+#### heating system
+
+-  heat cable + grill rack from IKEA
+- in the range of 50-100
+
 #### cooling system
 
 Peltier or compressor refrigeration?
