@@ -1,10 +1,10 @@
 # raspi-chill
 
-## Setup
+## setup
 
 - `./install.sh`
 
-## Usage
+## usage
 
 **Continous mode:** monitors and maintain temperature
 
@@ -12,7 +12,7 @@
 
 Real-time updates of `config.ini` are supported. Example usecase: change the regulation temperature, cycle time, ...
 
-## Hardware
+## hardware
 
 - icebox v1: FreeCAD design and panels measurements in `cad/iceBox.fcstd`
 - 12 VDC 80 mm fan
@@ -27,17 +27,28 @@ Real-time updates of `config.ini` are supported. Example usecase: change the reg
 - (prototyping/debug only) Breadboard
 - (prototyping/debug only) Jumper cables
 
-## v2 hardware (under development)
+## icebox v2 (under development)
+
+Why:
+- I still live in a flat
+- Still no room for a kegerator or a big fridge
+- Still can't find a smaller bar fridge that will fit a 23/30L fermenter
+- Tired of changing ice jugs every day
+- Want to do lagers too: need more cold power than ice+fans
+- icebox v1 was recycled when moved interstate
+- icebox v1 was too expensive to build compared to buying a second hand fridge, mostly because of insulation panels
 
 Goals:
 
-- move away from ice jugs (too much maintenance) and install a compressor-based cooling system
-- re-build an insulated box with a smaller budget (original insulation panels costed ~80-100 dollars)
+- move away from ice jugs and install a powered cooling system
+- build an insulated box with a smaller budget (original insulation panels costed ~80-100 dollars)
+  - needs to fit in a closet
+  - needs to be able to temp. control in the range: 5 to 30 degrees (MVP will be cooling only)
 
 ### resources
 
-- state of the art in boat cooling systems (12VDC): https://www.sailmagazine.com/diy/how-to-upgrading-your-icebox
-- example polystyren ice-boxes: https://shop.powerpackaging.com.au/product-group/620-ice-pack-esky/category/2491-eskies
+- state of the art in boat fridges cooling systems (12VDC): https://www.sailmagazine.com/diy/how-to-upgrading-your-icebox
+- polystyren/foam ice-boxes: https://shop.powerpackaging.com.au/product-group/620-ice-pack-esky/category/2491-eskies
 
 ### components
 
