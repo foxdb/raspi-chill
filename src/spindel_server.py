@@ -2,6 +2,7 @@
 """
 Collects temperature / gravity readings from Spindel
 
+start standalone with sudo python3 spindel_server.py 85
 test with curl -d "{\"temperature\":12,\"angle\":10,\"gravity\":121212}" ip:port
 
 """
@@ -10,9 +11,29 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import sys
 from db import Logger
+import configparser
+import requests
+import os
 
 
-def RequestHandlerFactory(logger):
+def get_config(config_file):
+    config_input = configparser.ConfigParser()
+    config_input.read(config_file)
+
+    config = dict()
+
+    config['PUSH_ENDPOINT'] = config_input.get('holdmybeer', 'collection_endpoint')
+    config['PUSH_API_KEY'] = config_input.get('holdmybeer', 'apikey')
+
+    return config
+
+
+def post_data(url, apikey, body):
+    headers = {'content-type': 'application/json', 'x-api-key': apikey}
+    requests.post(url, data=json.dumps(body), headers=headers)
+
+
+def RequestHandlerFactory(logger, config_file):
     class S(BaseHTTPRequestHandler):
         def _set_headers(self):
             self.send_response(200)
@@ -58,11 +79,20 @@ def RequestHandlerFactory(logger):
             logger.writeAngle(parsed_body['angle'])
             logger.writeGravity(parsed_body['gravity'])
 
+            try:
+                config = get_config(config_file)
+                target_endpoint = config.get('PUSH_ENDPOINT')
+                target_apikey = config.get('PUSH_API_KEY')
+                print('forwarding payload to', target_endpoint)
+                post_data(target_endpoint, target_apikey, parsed_body)
+            except:
+                print('failed while posting data to remote server')
+
     return S
 
 
-def spindel_server(logger, port=80):
-    request_handler = RequestHandlerFactory(logger)
+def spindel_server(logger, config_file, port=80):
+    request_handler = RequestHandlerFactory(logger, config_file)
     server_address = ('', port)
     httpd = HTTPServer(server_address, request_handler)
     print('Starting httpd...')
@@ -72,4 +102,6 @@ def spindel_server(logger, port=80):
 # run the server on its own, useful for debugging
 if __name__ == "__main__":
     logger = Logger('test')
-    spindel_server(logger, port=int(sys.argv[1]))
+    config_file = os.path.dirname(
+        os.path.realpath(__file__)) + "/config.ini"
+    spindel_server(logger, config_file, port=int(sys.argv[1]))

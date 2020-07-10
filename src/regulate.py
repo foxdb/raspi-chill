@@ -98,10 +98,10 @@ if __name__ == "__main__":
     config_file = os.path.dirname(
         os.path.realpath(__file__)) + "/config.ini"
 
-    # need threads here
     regulation_thread = threading.Thread(
         target=main, args=(logger, config_file,))
-    http_thread = threading.Thread(target=spindel_server, args=(logger, 85,))
+
+    http_thread = threading.Thread(target=spindel_server, args=(logger, config_file, 85))
 
     regulation_thread.start()
     http_thread.start()
