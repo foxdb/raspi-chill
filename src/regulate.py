@@ -9,6 +9,7 @@ from buzzer import alarm, notify_init, is_buzzer_on, turn_buzzer_off
 from cooler import turn_cooling_off, turn_cooling_on, is_cooling_on
 from db import Logger, get_date
 from spindel_server import spindel_server
+from tilt_read import tilt_read
 
 
 def main(logger, config_file):
@@ -85,6 +86,7 @@ def get_config(config_file):
 
 
 if __name__ == "__main__":
+    print('parsing config...')
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--name', help='project name, included in log files')
@@ -98,12 +100,21 @@ if __name__ == "__main__":
     config_file = os.path.dirname(
         os.path.realpath(__file__)) + "/config.ini"
 
+    print('initializing regulation_thread...')
     regulation_thread = threading.Thread(
         target=main, args=(logger, config_file,))
 
+    print('initializing http_thread...')
     http_thread = threading.Thread(target=spindel_server, args=(logger, config_file, 85))
 
+    print('initializing tilt_thread...')
+    tilt_thread = threading.Thread(target=tilt_read, args=(config_file,))
+
+    print('starting tilt_thread...')
+    tilt_thread.start()
+    print('starting regulation_thread...')
     regulation_thread.start()
+    print('starting http_thread...')
     http_thread.start()
 
     #  TODO handle KeyboardInterrupt, handle process kill

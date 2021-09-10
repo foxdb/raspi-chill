@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding:utf-8 -*-
 
 import sys
 import asyncio
@@ -133,12 +132,13 @@ def get_and_push_tilt_readings_once(config_file):
         target_endpoint = config.get('PUSH_ENDPOINT')
         target_apikey = config.get('PUSH_API_KEY')
         print('Pushing readings to', target_endpoint)
-        # post_data(target_endpoint, target_apikey, readings)
+        post_data(target_endpoint, target_apikey, readings)
     except:
         print('Failed while posting data to remote server')
 
 
-def get_and_push_tilt_readings_continuous(config_file):
+def tilt_read(config_file):
+    print('starting tilt_read')
     print('tilt_read: will get and push tilt readings every ' +
           str(READ_INTERVAL_S) + ' seconds with ' + str(OPEN_READ_TIME_S) + ' seconds acquisition windows.')
     while True:
@@ -149,4 +149,4 @@ def get_and_push_tilt_readings_continuous(config_file):
 if __name__ == "__main__":
     config_file = os.path.dirname(
         os.path.realpath(__file__)) + "/config.ini"
-    get_and_push_tilt_readings_continuous(config_file)
+    tilt_read(config_file)
