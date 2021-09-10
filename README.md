@@ -1,12 +1,54 @@
 # raspi-chill
 
+- [raspi-chill](#raspi-chill)
+  - [setup](#setup)
+  - [Tilt](#tilt)
+  - [iSpindel](#ispindel)
+  - [usage](#usage)
+  - [hardware](#hardware)
+  - [icebox v2 (under development)](#icebox-v2-under-development)
+    - [resources](#resources)
+    - [components](#components)
+      - [ice box](#ice-box)
+      - [control, measurement and communications](#control-measurement-and-communications)
+      - [power supply](#power-supply)
+      - [heating system](#heating-system)
+      - [cooling system](#cooling-system)
+        **Continous mode:** monitors and maintain temperature
+
 ## setup
 
 `./install.sh`
 
-## usage
+## Tilt
 
-**Continous mode:** monitors and maintain temperature
+https://github.com/frawau/aioblescan
+also see https://github.com/baronbrew/TILTpi
+
+install
+
+```
+sudo apt-get install bluetooth libbluetooth-dev
+```
+
+in src folder, install aioblescan with tilt plugin
+
+```
+wget https://github.com/baronbrew/aioblescan/archive/master.zip
+unzip master.zip
+cd aioblescan-master/
+sudo -H python3 setup.py install
+```
+
+check that it works
+
+```
+sudo python3 -u -m aioblescan -T
+```
+
+## iSpindel
+
+## usage
 
 `nohup sudo ./src/regulate.py --name NAME &`
 
@@ -30,6 +72,7 @@ Real-time updates of `config.ini` are supported. Example usecase: change the reg
 ## icebox v2 (under development)
 
 Why:
+
 - I still live in a flat
 - Still no room for a kegerator or a big fridge
 - Still can't find a smaller bar fridge that will fit a 23/30L fermenter
@@ -57,6 +100,7 @@ Goals:
 > an icebox, built from combined existing foam-like eskys
 
 Requirements:
+
 - being reasonably insulated
 - can host a 30L fermenter (Carboy-style, plastic)
 - can fit in an appartment closet
@@ -66,15 +110,17 @@ Requirements:
 Implementation:
 
 Internal dimensions requirements:
+
 - given fermenter size
 - given internal cooling system size
 - given electronics size
 
 #### control, measurement and communications
 
-> remotely configurable, real time control and data aggregation 
+> remotely configurable, real time control and data aggregation
 
 Requirements:
+
 - connected
   - hot-reloads configuration from various sources
   - start/stop over SSH
@@ -93,7 +139,7 @@ Implementation:
 
 #### heating system
 
--  heat cable + grill rack from IKEA
+- heat cable + grill rack from IKEA
 - in the range of 50-100
 
 #### cooling system
@@ -108,13 +154,16 @@ https://en.wikipedia.org/wiki/Thermoelectric_cooling
 
 Implementations:
 Compressor:
+
 - strip existing cooling parts from an old fridge?
 - boat-like or truck-like compressor-cooling kit?
 
 Peltier:
+
 - https://www.aliexpress.com/item/32971811480.html
 - https://www.aliexpress.com/item/32946954579.html
 - https://www.seafrost.com/BD.html
 
 Esky-style:
+
 - https://www.aliexpress.com/item/33040098056.html
