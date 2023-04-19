@@ -24,6 +24,7 @@ def get_config(config_file):
 
     config['PUSH_ENDPOINT'] = config_input.get('holdmybeer', 'collection_endpoint')
     config['PUSH_API_KEY'] = config_input.get('holdmybeer', 'apikey')
+    config['SPINDEL_COLLECTION_ENABLED'] = config_input.getboolean('holdmybeer', 'spindel_collection_enabled')
 
     return config
 
@@ -83,8 +84,12 @@ def RequestHandlerFactory(logger, config_file):
                 config = get_config(config_file)
                 target_endpoint = config.get('PUSH_ENDPOINT')
                 target_apikey = config.get('PUSH_API_KEY')
-                print('forwarding payload to', target_endpoint)
-                post_data(target_endpoint, target_apikey, parsed_body)
+                spindel_collection_enabled = config.get('SPINDEL_COLLECTION_ENABLED')
+                if spindel_collection_enabled:
+                    print('forwarding payload to', target_endpoint)
+                    post_data(target_endpoint, target_apikey, parsed_body)
+                else:
+                    print('skipping data forwarding to collection endpoint because spindel_collection_enabled is not true')
             except:
                 print('failed while posting data to remote server')
 

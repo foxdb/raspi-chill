@@ -107,6 +107,7 @@ def get_tilt_readings(open_read_time):
 
 
 def get_config(config_file):
+    print('Reading config file: ' + str(config_file))
     config_input = configparser.ConfigParser()
     config_input.read(config_file)
 
@@ -115,6 +116,7 @@ def get_config(config_file):
     config['PUSH_ENDPOINT'] = config_input.get(
         'holdmybeer', 'tilt_collection_endpoint')
     config['PUSH_API_KEY'] = config_input.get('holdmybeer', 'apikey')
+    config['TILT_COLLECTION_ENABLED'] = config_input.getboolean('holdmybeer', 'tilt_collection_enabled')
 
     return config
 
@@ -124,13 +126,10 @@ def post_data(url, apikey, body):
     requests.post(url, data=json.dumps(body), headers=headers)
 
 
-def get_and_push_tilt_readings_once(config_file):
+def get_and_push_tilt_readings_once(target_endpoint, target_apikey):
     readings = get_tilt_readings(OPEN_READ_TIME_S)
     print('Got readings: ' + str(readings))
     try:
-        config = get_config(config_file)
-        target_endpoint = config.get('PUSH_ENDPOINT')
-        target_apikey = config.get('PUSH_API_KEY')
         print('Pushing readings to', target_endpoint)
         post_data(target_endpoint, target_apikey, readings)
     except:
@@ -142,7 +141,16 @@ def tilt_read(config_file):
     print('tilt_read: will get and push tilt readings every ' +
           str(READ_INTERVAL_S) + ' seconds with ' + str(OPEN_READ_TIME_S) + ' seconds acquisition windows.')
     while True:
-        get_and_push_tilt_readings_once(config_file)
+        config = get_config(config_file)
+        target_endpoint = config.get('PUSH_ENDPOINT')
+        target_apikey = config.get('PUSH_API_KEY')
+        tilt_collection_enabled = config.get('TILT_COLLECTION_ENABLED')
+
+        if tilt_collection_enabled:
+            print('tilt_collection_enabled is true, collecting a reading...')
+            get_and_push_tilt_readings_once(target_endpoint, target_apikey)
+        else:
+            print('skipped tilt collection because tilt_collection_enabled is not true')
         time.sleep(READ_INTERVAL_S)
 
 
