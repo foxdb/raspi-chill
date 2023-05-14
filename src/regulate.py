@@ -108,7 +108,7 @@ if __name__ == "__main__":
     http_thread = threading.Thread(target=spindel_server, args=(logger, config_file, 85))
 
     print('initializing tilt_thread...')
-    tilt_thread = threading.Thread(target=tilt_read, args=(config_file,))
+    tilt_thread = threading.Thread(target=tilt_read, args=(logger, config_file,))
 
     print('starting tilt_thread...')
     tilt_thread.start()

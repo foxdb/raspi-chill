@@ -9,6 +9,7 @@ import json
 import configparser
 import requests
 import os
+from db import Logger
 import aioblescan as aiobs
 from aioblescan.plugins import Tilt
 
@@ -106,8 +107,8 @@ def get_tilt_readings(open_read_time):
         return readings
 
 
-def get_config(config_file):
-    print('Reading config file: ' + str(config_file))
+def get_config(logger, config_file):
+    logger.info('Reading config file: ' + str(config_file))
     config_input = configparser.ConfigParser()
     config_input.read(config_file)
 
@@ -126,35 +127,37 @@ def post_data(url, apikey, body):
     requests.post(url, data=json.dumps(body), headers=headers)
 
 
-def get_and_push_tilt_readings_once(target_endpoint, target_apikey):
+def get_and_push_tilt_readings_once(logger, target_endpoint, target_apikey):
     readings = get_tilt_readings(OPEN_READ_TIME_S)
-    print('Got readings: ' + str(readings))
+    logger.info('Got readings: ' + str(readings))
     try:
-        print('Pushing readings to', target_endpoint)
+        logger.info('Pushing readings to ' + target_endpoint)
         post_data(target_endpoint, target_apikey, readings)
-    except:
-        print('Failed while posting data to remote server')
+    except Exception as e:
+        logger.info('Failed while posting data to remote server')
+        logger.info(str(e))
 
 
-def tilt_read(config_file):
-    print('starting tilt_read')
-    print('tilt_read: will get and push tilt readings every ' +
+def tilt_read(logger, config_file):
+    logger.info('starting tilt_read')
+    logger.info('tilt_read: will get and push tilt readings every ' +
           str(READ_INTERVAL_S) + ' seconds with ' + str(OPEN_READ_TIME_S) + ' seconds acquisition windows.')
     while True:
-        config = get_config(config_file)
+        config = get_config(logger, config_file)
         target_endpoint = config.get('PUSH_ENDPOINT')
         target_apikey = config.get('PUSH_API_KEY')
         tilt_collection_enabled = config.get('TILT_COLLECTION_ENABLED')
 
         if tilt_collection_enabled:
-            print('tilt_collection_enabled is true, collecting a reading...')
-            get_and_push_tilt_readings_once(target_endpoint, target_apikey)
+            logger.info('tilt_collection_enabled is true, collecting a reading...')
+            get_and_push_tilt_readings_once(logger, target_endpoint, target_apikey)
         else:
-            print('skipped tilt collection because tilt_collection_enabled is not true')
+            logger.info('skipped tilt collection because tilt_collection_enabled is not true')
         time.sleep(READ_INTERVAL_S)
 
 
 if __name__ == "__main__":
+    logger = Logger('test')
     config_file = os.path.dirname(
         os.path.realpath(__file__)) + "/config.ini"
-    tilt_read(config_file)
+    tilt_read(logger, config_file)
