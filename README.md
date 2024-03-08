@@ -67,3 +67,31 @@ Real-time updates of `config.ini` are supported. Example usecase: change the reg
   - Pinout: see ./docs for wiring
 - (prototyping/debug only) Breadboard
 - (prototyping/debug only) Jumper cables
+
+## LCD
+
+Test: 
+
+```
+python3 src/test_lcd_display.py
+```
+
+
+```
+sudo apt-get install -y i2c-tools python3-smbus
+```
+
+check if i2c is loaded: `lsmod | grep i2c_`
+get address of the i2c backpack: `sudo i2cdetect -y 1`
+
+usually `0x27`
+
+```
+sudo pip3 install RPLCD smbus2
+```
+
+docs: https://rplcd.readthedocs.io/en/stable/usage.html
+
+## interface 
+
+sudo pip3 install keyboard
