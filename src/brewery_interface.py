@@ -12,6 +12,9 @@ import os
 import lcd
 import sys
 import keyboard
+from tilt_read import get_tilt_readings 
+
+TILT_ACQUISITION_TIME_S = 10
 
 # TODO: keyboard event handler to avoid repeating code - see while True:
 
@@ -26,10 +29,29 @@ def brewery_interface(logger, config_file):
         if event.event_type == keyboard.KEY_DOWN and event.name == 'space':
             print('space was pressed')
 
+        if event.event_type == keyboard.KEY_DOWN and event.name == 't':
+            lcd.write('Tilt acquisition', 'in progress...')
+
+            # TODO: error handling
+            print('t pressed, doing a reading of tilts')
+            readings = get_tilt_readings(TILT_ACQUISITION_TIME_S)
+            print('got readings', readings)
+
+            for reading in readings.values():
+                gravity = reading['minor']
+                temperature = round((reading['major'] - 32) * 5 / 9, 1)
+                color = reading['color']
+
+                lcd.write("{} tilt".format(color), "SG={}, T={}".format(gravity, temperature))
+                sleep(5)
+
+            lcd.clear()
+            lcd.turn_backlight_off()
+
         if event.event_type == keyboard.KEY_DOWN and event.name == 'o':
             lcd.write('q: quit program', 'o: show options')
             sleep(4)
-            lcd.write('g: read green', 'o: read orange')
+            lcd.write('t: read tilts', '')
             sleep(4)
             lcd.clear()
             lcd.turn_backlight_off()

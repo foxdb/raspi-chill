@@ -97,7 +97,7 @@ def get_tilt_readings(open_read_time):
     try:
         event_loop.run_forever()
     finally:
-       # stop: close event loop
+        # stop: close event loop
         # print('Stopping acquisition')
         btctrl.stop_scan_request()
         command = aiobs.HCI_Cmd_LE_Advertise(enable=False)

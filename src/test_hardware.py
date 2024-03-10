@@ -4,11 +4,18 @@ from time import sleep
 from sensor import read_temperature
 from buzzer import notify_init
 from cooler import turn_cooling_off, turn_cooling_on
+from tilt_read import get_tilt_readings
 
 print("""raspi-chill - hardware tests
+      - tilt acquisition
       - temperature sensor reading
       - buzzer
       - cooling device""")
+
+input('Press Enter (tilt read)')
+
+readings = get_tilt_readings(10)
+print(readings)
 
 input('Press Enter (temperature sensor)')
 
