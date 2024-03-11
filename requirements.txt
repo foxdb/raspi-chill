@@ -1,1 +1,4 @@
 gpiozero
+keyboard
+RPLCD
+smbus2

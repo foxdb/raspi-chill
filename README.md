@@ -4,31 +4,54 @@ Raspi-chill on Raspberry Pi:
 
 - Accepts data sent via HTTP from iSpindels (wifi)
 - Gathers data from nearby Tilts (bluetooth)
-- Forwards data to the [Hold My Beer](http://hold-my-beer.smitchdigital.com) platform
+- Forwards data to the **Hold My Beer** platform
+- Exposes a local brewery UI to get real time data from nearby sensors
 
-Previously, it was also turning a fan on/off depending on measured temp, but that is handled by an external controller now.
+Previously was also a temp. controller (ice box - fermentation chiller, turning a fan on/off). That is handled by an external controller now.
 
 - [raspi-chill](#raspi-chill)
   - [setup](#setup)
-  - [Tilt](#tilt)
-  - [iSpindel](#ispindel)
+    - [crontab setup](#crontab-setup)
   - [usage](#usage)
-  - [hardware](#hardware)
+  - [tilt support](#tilt-support)
+  - [LCD support](#lcd-support)
+  - [hardware - deprecated](#hardware---deprecated)
 
 ## setup
 
-`./install.sh`
+Install python deps, bluetooth, i2c... Make sure I2C is enabled (`raspy-config`).
 
-## Tilt
+```
+pip install -r requirements.txt
+cp src/config.example.ini src/config.ini
+mkdir logs
+sudo apt-get install -y i2c-tools python3-smbus
+sudo apt-get install bluetooth libbluetooth-dev
+```
+
+Make sure `remote/s3-upload.sh` exists. Need aws credentials setup (aws config).
+
+### crontab setup
+
+On system boot, start the main regulation system. Once an hour, refresh config file from S3.
+
+As root, `crontab -e`:
+
+```
+*/5 * * * * /home/pi/projects/raspi-chill/remote/s3-upload.sh
+@reboot sleep 5 && nohup sudo python3 /home/pi/projects/raspi-chill/src/regulate.py &
+```
+
+## usage
+
+`nohup sudo ./src/regulate.py --name NAME &`
+
+Real-time updates of `config.ini` are supported. Example usecase: change the regulation temperature, cycle time, ...
+
+## tilt support
 
 https://github.com/frawau/aioblescan
 also see https://github.com/baronbrew/TILTpi
-
-install
-
-```
-sudo apt-get install bluetooth libbluetooth-dev
-```
 
 in src folder, install aioblescan with tilt plugin
 
@@ -45,15 +68,24 @@ check that it works
 sudo python3 -u -m aioblescan -T
 ```
 
-## iSpindel
+## LCD support
 
-## usage
+2 rows / 16 chars per row
 
-`nohup sudo ./src/regulate.py --name NAME &`
+Test:
 
-Real-time updates of `config.ini` are supported. Example usecase: change the regulation temperature, cycle time, ...
+```
+python3 src/test_lcd_display.py
+```
 
-## hardware
+check if i2c is loaded: `lsmod | grep i2c_`
+get address of the i2c backpack: `sudo i2cdetect -y 1`
+
+usually `0x27`
+
+docs: https://rplcd.readthedocs.io/en/stable/usage.html
+
+## hardware - deprecated
 
 - icebox v1: FreeCAD design and panels measurements in `cad/iceBox.fcstd`
 - 12 VDC 80 mm fan
@@ -67,31 +99,3 @@ Real-time updates of `config.ini` are supported. Example usecase: change the reg
   - Pinout: see ./docs for wiring
 - (prototyping/debug only) Breadboard
 - (prototyping/debug only) Jumper cables
-
-## LCD
-
-Test: 
-
-```
-python3 src/test_lcd_display.py
-```
-
-
-```
-sudo apt-get install -y i2c-tools python3-smbus
-```
-
-check if i2c is loaded: `lsmod | grep i2c_`
-get address of the i2c backpack: `sudo i2cdetect -y 1`
-
-usually `0x27`
-
-```
-sudo pip3 install RPLCD smbus2
-```
-
-docs: https://rplcd.readthedocs.io/en/stable/usage.html
-
-## interface 
-
-sudo pip3 install keyboard
